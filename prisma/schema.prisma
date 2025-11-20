@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique
+  username      String?   @unique
+  displayName   String?
+  imageUrl      String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Reputation & Stats
+  reputationScore Float     @default(0)
+  rank            String    @default("Novice") // Novice, Analyst, Expert, Oracle
+  
+  // Relations
+  posts         Post[]
+  reactions     Reaction[]
+  insights      Insight[]
+  reputationHistory UserReputation[]
+}
+
+model Post {
+  id            String    @id @default(cuid())
+  content       String    @db.Text
+  ticker        String?   // e.g., $AAPL
+  sentiment     String?   // BULLISH, BEARISH, NEUTRAL
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Author
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id])
+  
+  // Metadata
+  viewCount     Int       @default(0)
+  
+  // Relations
+  reactions     Reaction[]
+  tags          PostTag[]
+  insight       Insight?
+}
+
+model Reaction {
+  id            String    @id @default(cuid())
+  type          String    // LIKE, BULLISH, BEARISH, INSIGHTFUL
+  createdAt     DateTime  @default(now())
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  postId        String
+  post          Post      @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId, type])
+}
+
+model Tag {
+  id            String    @id @default(cuid())
+  name          String    @unique // e.g., "Tech", "Earnings", "High Risk"
+  category      String    // SECTOR, CATALYST, RISK, TREND
+  
+  posts         PostTag[]
+}
+
+model PostTag {
+  postId        String
+  tagId         String
+  post          Post      @relation(fields: [postId], references: [id])
+  tag           Tag       @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+}
+
+model Insight {
+  id            String    @id @default(cuid())
+  type          String    // FUNDAMENTAL, TECHNICAL, MACRO, EARNINGS, RISK
+  summary       String    @db.Text
+  qualityScore  Float     // 0-100
+  confidence    Float     // 0-1
+  
+  postId        String    @unique
+  post          Post      @relation(fields: [postId], references: [id])
+  
+  // Attributed to (usually the post author, but could be system generated)
+  authorId      String?
+  author        User?     @relation(fields: [authorId], references: [id])
+  
+  createdAt     DateTime  @default(now())
+}
+
+model TrendingTicker {
+  id            String    @id @default(cuid())
+  symbol        String    @unique
+  name          String?
+  price         Float
+  changePercent Float
+  volume        Int
+  
+  sentimentScore Float    // -1 to 1
+  postCount     Int       @default(0)
+  
+  updatedAt     DateTime  @updatedAt
+}
+
+model UserReputation {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  score         Float
+  change        Float
+  reason        String?
+  createdAt     DateTime  @default(now())
+}
+
+model MarketData {
+  id            String    @id @default(cuid())
+  symbol        String
+  data          Json      // Flexible storage for API responses
+  source        String    // YAHOO, STOCKTWITS
+  fetchedAt     DateTime  @default(now())
+}

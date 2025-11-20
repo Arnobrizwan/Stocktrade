@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 10;
+  --background-end-rgb: 0, 0, 0;
+
+  /* Polymarket-inspired Palette */
+  --color-bullish: #00E272;
+  --color-bearish: #FF4D4D;
+  --color-accent: #2D9CDB;
+  --color-surface: #1E1E1E;
+  --color-surface-hover: #2C2C2C;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl;
+  }
+
+  .text-bullish {
+    color: var(--color-bullish);
+  }
+
+  .text-bearish {
+    color: var(--color-bearish);
+  }
+
+  .bg-bullish {
+    background-color: var(--color-bullish);
+  }
+
+  .bg-bearish {
+    background-color: var(--color-bearish);
+  }
+}
