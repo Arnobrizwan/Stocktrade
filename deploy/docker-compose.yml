@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build:
-      context: .
+      context: ..
       dockerfile: deploy/Dockerfile.nextjs
     ports:
       - "3000:3000"
@@ -16,7 +16,7 @@ services:
 
   api:
     build:
-      context: .
+      context: ..
       dockerfile: deploy/Dockerfile.fastapi
     ports:
       - "8000:8000"

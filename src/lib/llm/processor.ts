@@ -1,10 +1,4 @@
-import { generateObject } from 'ai';
-import { createOllama } from 'ollama-ai-provider';
 import { z } from 'zod';
-
-const ollama = createOllama({
-    baseURL: 'http://localhost:11434/api',
-});
 
 // Schema for LLM output
 const AnalysisSchema = z.object({
@@ -20,17 +14,44 @@ export type PostAnalysis = z.infer<typeof AnalysisSchema>;
 
 export async function analyzePost(content: string): Promise<PostAnalysis> {
     try {
-        const { object } = await generateObject({
-            model: ollama('llama3') as any, // Type cast to resolve SDK version mismatch
-            schema: AnalysisSchema,
-            prompt: `Analyze the following stock trading post. Extract semantic tags, determine sentiment, score the quality (0-100) based on actionable insight and reasoning, categorize the insight type, and provide a brief summary.
-      
-      Post Content:
-      "${content}"
-      `,
+        const prompt = `Analyze this stock trading post and extract the following information in JSON format:
+- tags: array of semantic tags (e.g., "Tech", "Earnings", "High Risk", "AI", "Growth")
+- sentiment: BULLISH, BEARISH, or NEUTRAL
+- qualityScore: 0-100 based on depth, reasoning, and actionable insights
+- insightType: FUNDAMENTAL, TECHNICAL, MACRO, EARNINGS, RISK, or GENERAL
+- summary: brief 1-sentence summary of the key insight
+- confidence: 0-1 confidence score
+
+Post: "${content}"
+
+Return ONLY valid JSON, no explanation:`;
+
+        const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'llama3',
+                prompt,
+                stream: false,
+                format: 'json'
+            })
         });
 
-        return object;
+        if (!response.ok) {
+            throw new Error(`Ollama API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const jsonMatch = data.response.match(/\{[\s\S]*\}/);
+
+        if (!jsonMatch) {
+            throw new Error('No JSON found in response');
+        }
+
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        // Validate and return
+        return AnalysisSchema.parse(parsed);
     } catch (error) {
         console.error("Error analyzing post with LLM:", error);
         // Fallback for error cases

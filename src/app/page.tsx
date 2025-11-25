@@ -4,11 +4,37 @@ import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import TrendingTickers from "@/components/dashboard/TrendingTickers";
 import CreatePost from "@/components/posts/CreatePost";
 import InsightsFeed from "@/components/dashboard/InsightsFeed";
-import { useState } from "react";
+import StockNewsFeed from "@/components/news/StockNewsFeed";
+import MarketPulse from "@/components/dashboard/MarketPulse";
+import SmartSignals from "@/components/dashboard/SmartSignals";
+import { useState, useEffect } from "react";
 import { BarChart3 } from "lucide-react";
 
+interface Analyst {
+    id: string;
+    username: string;
+    displayName: string | null;
+    imageUrl: string | null;
+    rank: string;
+    accuracy: number;
+    rankDisplay: string;
+    _count: {
+        posts: number;
+    };
+}
+
 export default function Home() {
+    const [selectedTicker, setSelectedTicker] = useState("NVDA");
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [analysts, setAnalysts] = useState<Analyst[]>([]);
+
+    useEffect(() => {
+        // Fetch top analysts
+        fetch('/api/analysts')
+            .then(res => res.json())
+            .then(data => setAnalysts(data))
+            .catch(err => console.error('Failed to fetch analysts:', err));
+    }, []);
 
     const handlePostCreated = () => {
         setRefreshTrigger((prev) => prev + 1);
@@ -28,21 +54,29 @@ export default function Home() {
 
                     <div className="flex items-center gap-4">
                         <SignedOut>
-                            <SignInButton mode="modal">
+                            <SignInButton mode="modal" forceRedirectUrl="/">
                                 <button className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                                     Sign In
                                 </button>
                             </SignInButton>
                         </SignedOut>
                         <SignedIn>
-                            <UserButton afterSignOutUrl="/" />
+                            <UserButton />
                         </SignedIn>
                     </div>
                 </div>
             </header>
 
             <div className="max-w-5xl mx-auto px-4 py-8">
-                <TrendingTickers />
+                <TrendingTickers onTickerClick={setSelectedTicker} selectedTicker={selectedTicker} />
+
+                {/* Smart Signals */}
+                <SmartSignals ticker={selectedTicker} />
+
+                {/* Live Stock News */}
+                <div className="mb-6">
+                    <StockNewsFeed />
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Feed */}
@@ -65,45 +99,50 @@ export default function Home() {
 
                     {/* Sidebar */}
                     <div className="hidden lg:block space-y-6">
-                        <div className="glass-panel p-5">
-                            <h3 className="font-bold mb-4 text-gray-200">Market Pulse</h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400">Fear & Greed</span>
-                                    <span className="text-bullish font-bold">65 (Greed)</span>
-                                </div>
-                                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-bullish h-full w-[65%]"></div>
-                                </div>
-
-                                <div className="pt-4 border-t border-white/5">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-gray-400">Sector Rotation</span>
-                                    </div>
-                                    <div className="flex gap-2 flex-wrap">
-                                        <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">Tech</span>
-                                        <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">Energy</span>
-                                        <span className="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded">Utilities</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <MarketPulse />
 
                         <div className="glass-panel p-5">
                             <h3 className="font-bold mb-4 text-gray-200">Top Analysts</h3>
                             <div className="space-y-4">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center font-bold text-xs">
-                                            U{i}
+                                {analysts.length > 0 ? (
+                                    analysts.map((analyst, index) => (
+                                        <div key={analyst.id} className="flex items-center gap-3">
+                                            {analyst.imageUrl ? (
+                                                <img
+                                                    src={analyst.imageUrl}
+                                                    alt={analyst.displayName || analyst.username}
+                                                    className="w-8 h-8 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center font-bold text-xs">
+                                                    {(analyst.displayName || analyst.username).charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <div className="text-sm font-bold">
+                                                    {analyst.displayName || analyst.username}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {analyst.accuracy}% Accuracy • {analyst._count.posts} posts
+                                                </div>
+                                            </div>
+                                            <div className="text-bullish text-xs font-bold">
+                                                {analyst.rankDisplay}
+                                            </div>
                                         </div>
-                                        <div className="flex-1">
-                                            <div className="text-sm font-bold">Analyst_{i}</div>
-                                            <div className="text-xs text-gray-500">92% Accuracy</div>
+                                    ))
+                                ) : (
+                                    // Loading skeleton
+                                    [1, 2, 3].map((i) => (
+                                        <div key={i} className="flex items-center gap-3 animate-pulse">
+                                            <div className="w-8 h-8 rounded-full bg-white/10"></div>
+                                            <div className="flex-1">
+                                                <div className="h-3 bg-white/10 rounded w-24 mb-1"></div>
+                                                <div className="h-2 bg-white/5 rounded w-16"></div>
+                                            </div>
                                         </div>
-                                        <div className="text-bullish text-xs font-bold">#1</div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
