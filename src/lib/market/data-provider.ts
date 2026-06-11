@@ -53,7 +53,12 @@ export async function getMarketData(symbol: string): Promise<MarketData | null> 
     }
 }
 
-const FMP_API_KEY = process.env.FMP_API_KEY || '12VjW4O8IUmyRccothStbrxritf63ia3';
+// Financial Modeling Prep API key. Must be provided via environment variable;
+// there is intentionally no fallback. If unset, the FMP provider is skipped.
+const FMP_API_KEY = process.env.FMP_API_KEY;
+if (!FMP_API_KEY) {
+    console.warn('[market/data-provider] FMP_API_KEY is not set; the Financial Modeling Prep provider will be skipped.');
+}
 
 export async function getSocialSentiment(symbol: string, count: number = 20): Promise<SocialSentiment | null> {
     try {
