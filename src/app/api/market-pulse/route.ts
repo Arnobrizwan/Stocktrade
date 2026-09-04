@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import yahooFinance from '@/lib/yahoo-finance';
 import axios from 'axios';
+import { snapshot } from '@/lib/snapshot';
 
 export async function GET() {
     try {
@@ -83,11 +84,8 @@ export async function GET() {
         });
     } catch (error) {
         console.error("Error fetching market pulse:", error);
-        return NextResponse.json({
-            score: 50,
-            mood: "Neutral",
-            summary: "Market data unavailable.",
-            indices: { spy: 0, qqq: 0, dia: 0, vix: 0 }
+        return NextResponse.json(snapshot.marketPulse, {
+            headers: { "X-Data-Source": "snapshot" },
         });
     }
 }

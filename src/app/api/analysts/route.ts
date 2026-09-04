@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { snapshot } from "@/lib/snapshot";
 
 export async function GET() {
     try {
@@ -36,10 +37,18 @@ export async function GET() {
             };
         });
 
+        if (analystsWithAccuracy.length === 0) {
+            return NextResponse.json(snapshot.analysts, {
+                headers: { "X-Data-Source": "snapshot" },
+            });
+        }
+
         return NextResponse.json(analystsWithAccuracy);
     } catch (error) {
         console.error("[ANALYSTS_GET]", error);
-        // Return empty array if no analysts found
-        return NextResponse.json([]);
+        // No database configured is the normal case for the public demo.
+        return NextResponse.json(snapshot.analysts, {
+            headers: { "X-Data-Source": "snapshot" },
+        });
     }
 }

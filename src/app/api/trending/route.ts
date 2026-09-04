@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMarketData, getSocialSentiment } from "@/lib/market/data-provider";
 import yahooFinance from 'yahoo-finance2';
+import { snapshot } from '@/lib/snapshot';
 
 export async function GET() {
     try {
@@ -80,12 +81,10 @@ export async function GET() {
         return NextResponse.json(trending);
     } catch (error) {
         console.error("[TRENDING_GET] Error:", error);
-        // Return fallback data if API fails
-        const fallback = [
-            { symbol: "NVDA", price: 880.45, change: 2.5, volume: 1500000, sentiment: "Bullish" },
-            { symbol: "TSLA", price: 175.30, change: -1.2, volume: 900000, sentiment: "Bearish" },
-            { symbol: "AMD", price: 160.10, change: 1.8, volume: 500000, sentiment: "Bullish" },
-        ];
-        return NextResponse.json(fallback);
+        // Yahoo blocks datacenter IPs, so this is the normal path in production.
+        // Serve the captured snapshot rather than invented prices.
+        return NextResponse.json(snapshot.trending, {
+            headers: { "X-Data-Source": "snapshot" },
+        });
     }
 }

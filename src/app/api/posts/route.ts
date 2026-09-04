@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { analyzePost } from "@/lib/llm/processor";
+import { snapshot } from "@/lib/snapshot";
 
 export async function POST(req: Request) {
     try {
@@ -117,9 +118,19 @@ export async function GET(req: Request) {
             take: 20,
         });
 
+        if (posts.length === 0) {
+            return NextResponse.json(snapshot.posts, {
+                headers: { "X-Data-Source": "snapshot" },
+            });
+        }
+
         return NextResponse.json(posts);
     } catch (error) {
         console.error("[POSTS_GET]", error);
-        return new NextResponse("Internal Error", { status: 500 });
+        // Without a database the feed would be a 500. Serve the seeded
+        // snapshot so the page still renders something real.
+        return NextResponse.json(snapshot.posts, {
+            headers: { "X-Data-Source": "snapshot" },
+        });
     }
 }

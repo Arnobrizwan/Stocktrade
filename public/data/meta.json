@@ -2,5 +2,6 @@
   "capturedAt": "2026-09-04T09:18:56.931Z",
   "source": "Yahoo Finance",
   "symbols": 15,
-  "newsItems": 20
+  "newsItems": 20,
+  "mode": "snapshot"
 }

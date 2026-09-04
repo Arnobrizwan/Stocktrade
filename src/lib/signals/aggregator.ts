@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import axios from 'axios';
 import yahooFinance from '@/lib/yahoo-finance';
+import { snapshot } from '@/lib/snapshot';
 
 interface SignalResult {
     ticker: string;
@@ -22,16 +23,28 @@ export async function getSmartSignal(ticker: string): Promise<SignalResult> {
         // Get posts from last 24h
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-        const posts = await prisma.post.findMany({
-            where: {
-                ticker: ticker,
-                createdAt: { gt: oneDayAgo }
-            },
-            include: {
-                author: true,
-                insight: true
+        // No DATABASE_URL is the normal case for the public demo, and a thrown
+        // query here used to bubble up as strategy: "Error" on every ticker.
+        // The snapshot carries the same seeded posts, so the real weighting
+        // logic below still has something genuine to work on.
+        let posts: any[];
+        try {
+            posts = await prisma.post.findMany({
+                where: {
+                    ticker: ticker,
+                    createdAt: { gt: oneDayAgo }
+                },
+                include: {
+                    author: true,
+                    insight: true
+                }
+            });
+            if (posts.length === 0) {
+                posts = snapshot.posts.filter((p: any) => p.ticker === ticker);
             }
-        });
+        } catch {
+            posts = snapshot.posts.filter((p: any) => p.ticker === ticker);
+        }
 
         // Get Market Data (Volatility)
         let volatility = 0;
