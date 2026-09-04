@@ -12,6 +12,7 @@ import marketPulse from "../../public/data/market-pulse.json";
 import analysts from "../../public/data/analysts.json";
 import posts from "../../public/data/posts.json";
 import meta from "../../public/data/meta.json";
+import volatility from "../../public/data/volatility.json";
 
-export const snapshot = { trending, marketPulse, analysts, posts, meta };
+export const snapshot = { trending, marketPulse, analysts, posts, meta, volatility };
 export const snapshotCapturedAt: string = meta.capturedAt;

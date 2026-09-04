@@ -56,8 +56,14 @@ export async function getSmartSignal(ticker: string): Promise<SignalResult> {
             } else {
                 volatility = Math.abs(quote.regularMarketChangePercent || 0);
             }
+            if (!volatility) {
+                volatility = (snapshot.volatility as Record<string, number>)[ticker] ?? 0;
+            }
         } catch (e) {
-            console.error(`Failed to fetch volatility for ${ticker}`);
+            // Yahoo is blocked from datacenter IPs. Reporting 0.00% here reads
+            // as "this stock did not move", which is a claim, not a gap — so
+            // use the intraday range captured in the snapshot instead.
+            volatility = (snapshot.volatility as Record<string, number>)[ticker] ?? 0;
         }
 
         // 2. Calculate Weighted Sentiment
