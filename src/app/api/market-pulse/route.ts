@@ -12,6 +12,15 @@ export async function GET() {
             symbols.map((s: string) => yahooFinance.quote(s).catch((e: any) => null))
         );
 
+        // Each quote swallows its own error, so a fully blocked upstream
+        // produces five nulls and silently computes a flat, all-zero market
+        // rather than throwing. Catch that here instead of publishing it.
+        if (quotes.every((q) => !q)) {
+            return NextResponse.json(snapshot.marketPulse, {
+                headers: { "X-Data-Source": "snapshot" },
+            });
+        }
+
         const spy = quotes[0] || { regularMarketChangePercent: 0, regularMarketPrice: 0 };
         const qqq = quotes[1] || { regularMarketChangePercent: 0, regularMarketPrice: 0 };
         const dia = quotes[2] || { regularMarketChangePercent: 0, regularMarketPrice: 0 };
