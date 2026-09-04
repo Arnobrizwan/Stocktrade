@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 interface Ticker {
     symbol: string;
@@ -21,7 +22,7 @@ export default function TrendingTickers({ onTickerClick, selectedTicker }: Trend
 
     const fetchTickers = async () => {
         try {
-            const res = await fetch("/api/trending");
+            const res = await fetch(apiUrl("/api/trending"));
             const data = await res.json();
             setTickers(data);
         } catch (error) {

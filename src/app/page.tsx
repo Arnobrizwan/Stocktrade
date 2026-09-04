@@ -1,6 +1,7 @@
 "use client";
 
-import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { AuthControls, AuthedOnly } from "@/components/auth/AuthControls";
+import SnapshotNotice from "@/components/SnapshotNotice";
 import TrendingTickers from "@/components/dashboard/TrendingTickers";
 import CreatePost from "@/components/posts/CreatePost";
 import InsightsFeed from "@/components/dashboard/InsightsFeed";
@@ -9,6 +10,7 @@ import MarketPulse from "@/components/dashboard/MarketPulse";
 import SmartSignals from "@/components/dashboard/SmartSignals";
 import { useState, useEffect } from "react";
 import { BarChart3 } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 interface Analyst {
     id: string;
@@ -30,7 +32,7 @@ export default function Home() {
 
     useEffect(() => {
         // Fetch top analysts
-        fetch('/api/analysts')
+        fetch(apiUrl('/api/analysts'))
             .then(res => res.json())
             .then(data => setAnalysts(data))
             .catch(err => console.error('Failed to fetch analysts:', err));
@@ -53,21 +55,13 @@ export default function Home() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <SignedOut>
-                            <SignInButton mode="modal" forceRedirectUrl="/">
-                                <button className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                                    Sign In
-                                </button>
-                            </SignInButton>
-                        </SignedOut>
-                        <SignedIn>
-                            <UserButton />
-                        </SignedIn>
+                        <AuthControls />
                     </div>
                 </div>
             </header>
 
             <div className="max-w-5xl mx-auto px-4 py-8">
+                <SnapshotNotice />
                 <TrendingTickers onTickerClick={setSelectedTicker} selectedTicker={selectedTicker} />
 
                 {/* Smart Signals */}
@@ -81,9 +75,9 @@ export default function Home() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Feed */}
                     <div className="lg:col-span-2">
-                        <SignedIn>
+                        <AuthedOnly>
                             <CreatePost onPostCreated={handlePostCreated} />
-                        </SignedIn>
+                        </AuthedOnly>
 
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold">Community Insights</h2>

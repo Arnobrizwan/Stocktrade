@@ -1,0 +1,13 @@
+{
+  "ticker": "AAPL",
+  "sentimentScore": 0,
+  "signalStrength": "Neutral",
+  "expertConsensus": "Neutral",
+  "strategy": "Hold and Monitor",
+  "reasoning": "AI unavailable. Based on sentiment score.",
+  "breakdown": {
+    "communitySentiment": 0,
+    "expertSentiment": 0,
+    "volatility": 2.07
+  }
+}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PostCard from "@/components/posts/PostCard";
 import { Loader2 } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 export default function InsightsFeed({ refreshTrigger }: { refreshTrigger: number }) {
     const [posts, setPosts] = useState<any[]>([]);
@@ -10,7 +11,7 @@ export default function InsightsFeed({ refreshTrigger }: { refreshTrigger: numbe
 
     const fetchPosts = async () => {
         try {
-            const res = await fetch("/api/posts");
+            const res = await fetch(apiUrl("/api/posts"));
             const data = await res.json();
             setPosts(data);
         } catch (error) {

@@ -1,0 +1,13 @@
+{
+  "ticker": "COIN",
+  "sentimentScore": 0,
+  "signalStrength": "Neutral",
+  "expertConsensus": "No Data",
+  "strategy": "Hold and Monitor",
+  "reasoning": "Insufficient data to generate a strategy.",
+  "breakdown": {
+    "communitySentiment": 0,
+    "expertSentiment": 0,
+    "volatility": 8.2
+  }
+}

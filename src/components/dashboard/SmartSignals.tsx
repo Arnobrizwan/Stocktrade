@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Brain, TrendingUp, TrendingDown, AlertCircle, ShieldCheck, Search } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 interface SignalData {
     ticker: string;
@@ -40,7 +41,7 @@ export default function SmartSignals({ ticker = "NVDA" }: { ticker?: string }) {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`/api/signals?ticker=${currentTicker}`);
+                const res = await fetch(apiUrl(`/api/signals?ticker=${currentTicker}`));
                 const json = await res.json();
                 setData(json);
             } catch (error) {

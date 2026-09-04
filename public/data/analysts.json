@@ -1,0 +1,26 @@
+[
+  {
+    "id": "usr_oracle",
+    "username": "MarketOracle",
+    "displayName": "Market Oracle",
+    "imageUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=Oracle",
+    "rank": "Oracle",
+    "_count": {
+      "posts": 4
+    },
+    "accuracy": 99,
+    "rankDisplay": "#1"
+  },
+  {
+    "id": "usr_tech",
+    "username": "TechAnalyst",
+    "displayName": "Tech Sector Expert",
+    "imageUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=TechExpert",
+    "rank": "Expert",
+    "_count": {
+      "posts": 4
+    },
+    "accuracy": 97,
+    "rankDisplay": "#2"
+  }
+]

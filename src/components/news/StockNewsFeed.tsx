@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Newspaper, ExternalLink, Clock } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 interface NewsItem {
     uuid: string;
@@ -24,7 +25,7 @@ export default function StockNewsFeed() {
     const fetchNews = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/news?limit=20');
+            const response = await fetch(apiUrl('/api/news?limit=20'));
             if (!response.ok) throw new Error('Failed to fetch news');
             const data = await response.json();
             setNews(data);

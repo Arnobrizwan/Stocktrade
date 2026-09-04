@@ -1,0 +1,13 @@
+{
+  "ticker": "TSLA",
+  "sentimentScore": -100,
+  "signalStrength": "Strong Sell",
+  "expertConsensus": "Bearish",
+  "strategy": "Hold and Monitor",
+  "reasoning": "AI unavailable. Based on sentiment score.",
+  "breakdown": {
+    "communitySentiment": -100,
+    "expertSentiment": -100,
+    "volatility": 4.95
+  }
+}

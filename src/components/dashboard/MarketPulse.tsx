@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Activity, TrendingUp, TrendingDown } from "lucide-react";
+import { apiUrl } from "@/lib/api-source";
 
 interface MarketPulseData {
     score: number;
@@ -22,7 +23,7 @@ export default function MarketPulse() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/api/market-pulse');
+                const res = await fetch(apiUrl('/api/market-pulse'));
                 const json = await res.json();
                 setData(json);
             } catch (error) {
