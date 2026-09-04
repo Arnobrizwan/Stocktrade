@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
               assetPrefix: basePath || undefined,
               images: { unoptimized: true },
               trailingSlash: true,
+              // Clerk registers Server Actions, which output: "export"
+              // rejects outright. Nothing in this build can be signed in,
+              // so swap the package for a no-op stub.
+              turbopack: {
+                  resolveAlias: {
+                      "@clerk/nextjs": "./src/lib/clerk-stub.tsx",
+                  },
+              },
           }
         : {}),
 };
