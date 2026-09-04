@@ -21,6 +21,9 @@ jobs:
       STATIC_EXPORT: "1"
       NEXT_PUBLIC_STATIC_MODE: "1"
       NEXT_PUBLIC_BASE_PATH: "/Stocktrade"
+      # prisma generate runs on install and reads this via prisma.config.ts.
+      # The static build never opens a connection, so a placeholder is enough.
+      DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
     steps:
       - uses: actions/checkout@v4
 
