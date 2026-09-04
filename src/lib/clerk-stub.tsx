@@ -33,3 +33,22 @@ export function SignInButton(_: {
 export function UserButton() {
     return null;
 }
+
+export function SignIn() {
+    return null;
+}
+
+export function SignUp() {
+    return null;
+}
+
+// CreatePost calls this at the top level. It only ever renders inside
+// <AuthedOnly>, which is already null without Clerk, but the hook still has
+// to resolve for the module to compile.
+export function useUser() {
+    return { isLoaded: true, isSignedIn: false, user: null } as const;
+}
+
+export function useAuth() {
+    return { isLoaded: true, isSignedIn: false, userId: null } as const;
+}
